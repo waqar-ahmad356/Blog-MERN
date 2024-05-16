@@ -14,14 +14,10 @@ const app=express();
 
 connectDb();
 //middleware
+app.use(cookieParser())
 app.use(express.json())
-app.use(cookieParser)
-app.use(cors({
-    origin:[],
-    methods:["GET","PUT","DELETE","POST"],
-    credentials:true
-}))
-app.use(express.urlencoded({extended:true}))
+
+
 
 //endpoint
 app.use("/api/user",userRouter)

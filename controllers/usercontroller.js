@@ -7,7 +7,7 @@ const jwt =require("jsonwebtoken")
 //create token 
 
 const createToken=(id)=>{
-    return jwt.sign({id},process.env.JWT_SECRET)
+   return jwt.sign({id},process.env.JWT_SECRET)
 }
 const registerUser=async(req,res)=>{
     try {
@@ -15,6 +15,12 @@ const registerUser=async(req,res)=>{
 
         if(!name||!email||!password||!role||!education||!phone){
             return res.json({success:false,message:"Please filled out all fiedls"})
+        }
+        if(name.length<=3 || name.length>32){
+            return res.json({success:false,message:"Name must be greater than 3 characters and less than 32"})
+        }
+        if(password.length<8 || password.length>32){
+            return res.json({success:false,message:"Password must be greater than 8 characters and less than 32"})
         }
 
         //check the user is already registerd
@@ -60,11 +66,11 @@ const userLogin=async(req,res)=>{
     }
     try {
         
-        const user=await userModel.find({email})
+        const user=await userModel.findOne({email})
         if(!user){
             return res.json({success:false,message:"User not Found"})
         }
-        if(user.role!==role)
+        if(user.role !==role)
             {
                 return res.json({success:false,message:"Incorrect Role"})
             }
