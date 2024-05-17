@@ -1,16 +1,28 @@
 const createToken = require("../Utils");
 const userModel = require("../models/userModel");
 const bcrypt= require("bcrypt");
+const cloudinary =require("cloudinary");
 
 
 
 
 
 const registerUser=async(req,res)=>{
+
+    if(!req.files || Object.keys(req.files).length===0){
+        res.json({success:false,message:"User Avatar Required"})
+    }
+    const {avatar}=req.files
+    const allowedFormats=["image/png","image/jpeg","image/jpg","image/webp"];
+    if(!allowedFormats.includes(avatar.minetype)){
+        res.json({success:false,message:"Invalid file type. please upload avatar in png,jpg or webp format"})
+    }
+
+
     try {
         const{name,email,password,role,education,phone}=req.body;
 
-        if(!name||!email||!password||!role||!education||!phone){
+        if(!name||!email||!password||!role||!education||!phone||!avatar){
             return res.json({success:false,message:"Please filled out all fiedls"})
         }
         if(name.length<=3 || name.length>32){
@@ -29,6 +41,12 @@ const registerUser=async(req,res)=>{
         //hash the password
         const salt=await bcrypt.genSalt(10);
         const hashedPassword=await bcrypt.hash(password,salt)
+
+        const cloundinaryResponse=await cloudinary.uploader.upload(avatar.tempFilePath)
+        if(!cloundinaryResponse ||cloundinaryResponse.error)
+            {
+                console.log("cloudinary error"||cloundinaryResponse.error||"unknown cloudinary error")
+            }
         //create a new user instance
         const newUser=new userModel({
             name:name,
@@ -36,7 +54,11 @@ const registerUser=async(req,res)=>{
             password:hashedPassword,
             role:role,
             education:education,
-            phone:phone
+            phone:phone,
+            avatar:{
+                public_id:cloundinaryResponse.public_id,
+                url:cloundinaryResponse.secure_url
+            }
         })
         //save new user to the database
 
