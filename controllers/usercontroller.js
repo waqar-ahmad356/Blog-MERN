@@ -1,14 +1,11 @@
+const createToken = require("../Utils");
 const userModel = require("../models/userModel");
 const bcrypt= require("bcrypt");
 
-const jwt =require("jsonwebtoken")
 
 
-//create token 
 
-const createToken=(id)=>{
-   return jwt.sign({id},process.env.JWT_SECRET)
-}
+
 const registerUser=async(req,res)=>{
     try {
         const{name,email,password,role,education,phone}=req.body;
@@ -46,6 +43,9 @@ const registerUser=async(req,res)=>{
         const user =await newUser.save();
 
         const token=createToken(user._id);
+        res.cookie("token",token,{
+            httpOnly:true
+        })
 
         //send the token in the response
         res.json({success:true,token})
@@ -81,7 +81,10 @@ const userLogin=async(req,res)=>{
         }
 
         const token=createToken(user._id)
-        return res.json({success:false,token})
+        res.cookie("token",token,{
+            httpOnly:true
+        })
+        return res.json({success:true,token})
     } catch (error) {
         console.log(error)
         return res.json({success:false,message:"Error"})
@@ -92,4 +95,21 @@ const userLogin=async(req,res)=>{
 
 }
 
-module.exports={registerUser,userLogin}
+const userLogout=async(req,res)=>{
+    res.clearCookie("token",{
+        httpOnly:true
+    })
+    res.json({success:true,message:"Successfully logout!"})
+}
+
+const getMyProfile=async(req,res)=>{
+    const user=req.user;
+    return res.json({success:true,user})
+}
+
+const getAllAuthors=async(req,res)=>{
+    const author=await userModel.find({role:"Reader"})
+    return res.json({success:true,authors:author})
+}
+
+module.exports={registerUser,userLogin,userLogout,getMyProfile,getAllAuthors}
