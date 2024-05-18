@@ -1,27 +1,39 @@
-const jwt =require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
-//authentication
-const isAuthenticated=async(req,res,next)=>{
-    const {token}=req.cookies
-    if(!token)
-        {
-            res.json({success:false,message:"user is not authenticated"})
-        }
-    const decoded=jwt.verify(token,process.env.JWT_SECRET)
-    req.user=await userModel.findById(decoded.id);
-    next()
-}
 
-//authorization
-
-const isAuthorized=(...roles)=>{
-    return (req,res,next)=>{
-        if(!roles.includes(req.user.role)){
-            return res.json({success:false,message:`user with this role ${req.user.role}not allowed to access this resource`})
-        }
+// Authentication middleware
+const isAuthenticated = async (req, res, next) => {
+    // Extract the token from the request cookies
+    const { token } = req.cookies;
+    // If token is not present, user is not authenticated
+    if (!token) {
+        res.json({ success: false, message: "User is not authenticated" });
     }
-    next();
+    try {
+        // Verify the token with the secret key
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Find the user in the database using the decoded user ID
+        req.user = await userModel.findById(decoded.id);
+        // Proceed to the next middleware or route handler
+        next();
+    } catch (error) {
+        // If token verification fails, return an error
+        res.json({ success: false, message: "Invalid token" });
+    }
+};
 
-}
+// Authorization middleware
+const isAuthorized = (...roles) => {
+    return (req, res, next) => {
+        // Check if the user's role is included in the allowed roles
+        if (!roles.includes(req.user.role)) {
+            // If user's role is not allowed, return an error
+            return res.json({ success: false, message: `User with role ${req.user.role} is not allowed to access this resource` });
+        }
+        // Proceed to the next middleware or route handler
+        next();
+    };
+};
 
-module.exports={isAuthenticated,isAuthorized}
+// Export the middleware functions for use in other modules
+module.exports = { isAuthenticated, isAuthorized };

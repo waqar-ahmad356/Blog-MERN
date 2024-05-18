@@ -1,41 +1,54 @@
-const express=require("express");
+// Import necessary modules
+const express = require("express");
 const connectDb = require("./config/db");
-
-const dotenv =require("dotenv");
+const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/userRoute");
-const expressfileupload=require("express-fileupload")
-const cloudinary =require("cloudinary")
+const expressfileupload = require("express-fileupload");
+const cloudinary = require("cloudinary");
 
-
-cloudinary.v2.config({
-    cloud_name:process.env.CLOUDINARY_CLIENT_NAME,
-    api_key:process.env.CLOUDINARY_CLIENT_API,
-    api_secret:process.env.CLOUDINARY_CLIENT_SECRET
-})
+// Load environment variables from .env file
 dotenv.config();
 
-const port=process.env.PORT;
+// Configure Cloudinary with credentials from environment variables
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLIENT_NAME,
+    api_key: process.env.CLOUDINARY_CLIENT_API,
+    api_secret: process.env.CLOUDINARY_CLIENT_SECRET
+});
 
+// Set the port from environment variables or default to 3000
+const port = process.env.PORT || 3000;
 
-const app=express();
+// Create an Express application
+const app = express();
 
+// Connect to the database
 connectDb();
-//middleware
 
-app.use(cookieParser())
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+// Middleware setup
+
+// Parse cookies
+app.use(cookieParser());
+
+// Parse JSON bodies
+app.use(express.json());
+
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+
+// Enable file uploads with temporary files
 app.use(expressfileupload({
-    useTempfiles:true,
-    tempFileDir:"/tmp/",
-}))
+    useTempFiles: true,
+    tempFileDir: "/tmp/"
+}));
 
+// Routes
 
+// Mount the userRouter at the "/api/user" endpoint
+app.use("/api/user", userRouter);
 
-//endpoint
-app.use("/api/user",userRouter)
-
-app.listen(port,()=>{
-    console.log(`server is runnig on http://localhost:${port}`)
-})
+// Start the server and listen on the specified port
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
