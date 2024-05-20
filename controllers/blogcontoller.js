@@ -65,27 +65,27 @@ const blogPost=async(req,res)=>{
             authorName,
             authorAvatar,
             mainImage:{
-                public_id:mainImage.public_id,
-                url:mainImage.secure_url
+                public_id:mainImageRes.public_id,
+                url:mainImageRes.secure_url
             }
             
            } 
            if(subImageOne){
             blogData.subImageOne={
-                public_id:subImageOne.public_id,
-                url:subContentOne.secure_url
+                public_id:subImageOneRes.public_id,
+                url:subImageOneRes.secure_url
             }
            }
            if(subImageTwo){
             blogData.subImageTwo={
                 public_id:subImageTwo.public_id,
-                url:subContentTwo.secure_url
+                url:subImageTwoRes.secure_url
             }
            }
            if(subImageThree){
             blogData.subImageOne={
                 public_id:subImageThree.public_id,
-                url:subContentThree.secure_url
+                url:subImageThreeRes.secure_url
             }
            }
 
@@ -100,3 +100,5 @@ const blogPost=async(req,res)=>{
     }
 
 }
+
+module.exports={blogPost}
