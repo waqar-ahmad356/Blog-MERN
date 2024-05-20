@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/userRoute");
 const expressfileupload = require("express-fileupload");
 const cloudinary = require("cloudinary");
+const blogRouter = require("./routes/blogRoute");
 
 // Load environment variables from .env file
 dotenv.config();
@@ -47,6 +48,8 @@ app.use(expressfileupload({
 
 // Mount the userRouter at the "/api/user" endpoint
 app.use("/api/user", userRouter);
+//Mount the blogRouter at the "/api/blog" endpoint
+app.use("/api/blog",blogRouter)
 
 // Start the server and listen on the specified port
 app.listen(port, () => {

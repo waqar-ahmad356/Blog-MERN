@@ -21,11 +21,7 @@ const blogSchema = new mongoose.Schema({
         required: true,
         minLength: [250, "Intro must contain at least 250 characters"],
     },
-    // Image for the introduction section
-    introImage: {
-        public_id: { type: String, required: true },
-        url: { type: String, required: true }
-    },
+    
     // Subtitle One
     subTitlOne: {
         type: String,
