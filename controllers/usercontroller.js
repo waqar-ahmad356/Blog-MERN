@@ -78,7 +78,7 @@ const registerUser = async (req, res) => {
         res.json({ success: true, token });
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: "Error" });
+        return res.json({ success: false, message: "Error" });
     }
 };
 
@@ -123,9 +123,9 @@ const userLogin = async (req, res) => {
 // Define a function to handle user logout
 const userLogout = async (req, res) => {
     // Clear token cookie
-    res.clearCookie("token", { httpOnly: true });
+    return res.clearCookie("token", { httpOnly: true });
     // Send logout success message
-    res.json({ success: true, message: "Successfully logged out!" });
+    return res.json({ success: true, message: "Successfully logged out!" });
 };
 
 // Define a function to get user's profile
