@@ -8,42 +8,45 @@ const blogSchema = new mongoose.Schema({
         type: String,
         required: true,
         minLength: [10, "Title must contain at least 10 characters"],
-        maxLength: [40, "Title cannot exceed 40 characters"],
+        maxLength: [40, "Title cannot exceed 40 characters"]
     },
     // Main image of the blog post
     mainImage: {
         public_id: { type: String, required: true },
-        url: { type: String, required: true },
+        url: { type: String, required: true }
     },
     // Introduction of the blog post
     intro: {
         type: String,
         required: true,
-        minLength: [250, "Intro must contain at least 250 characters"],
+        minLength: [250, "Intro must contain at least 250 characters"]
     },
     
     // Subtitle One
     subTitlOne: {
         type: String,
-        minLength: [50, "Subtitle One must contain at least 50 characters"],
+        minLength: [50, "Subtitle One must contain at least 50 characters"]
     },
     // Content for Subtitle One
-    subContenOne: {
+    subContentOne: {
         type: String,
-        minLength: [250, "Subcontent One must contain at least 250 characters"],
+        minLength: [250, "Subcontent One must contain at least 250 characters"]
     },
     // Image for Subtitle One
     subImageOne: {
         public_id: { type: String },
-        url: { type: String },
+        url: { type: String }
     },
     // Subtitle Two
     subTitleTwo: {
         type: String,
-        minLength: [10, "Subtitle Two must contain at least 10 characters"],
+        minLength: [10, "Subtitle Two must contain at least 10 characters"]
     },
     // Content for Subtitle Two
-    subContenTwo: {},
+    subContentTwo: {
+        type: String,
+        minLength: [250, "Subcontent Three must contain at least 250 characters"]
+    },
     // Image for Subtitle Two
     subImageTwo: {
         public_id: { type: String },
@@ -52,12 +55,12 @@ const blogSchema = new mongoose.Schema({
     // Subtitle Three
     subTitleThree: {
         type: String,
-        minLength: [10, "Subtitle Three must contain at least 10 characters"],
+        minLength: [10, "Subtitle Three must contain at least 10 characters"]
     },
     // Content for Subtitle Three
-    subContenThree: {
+    subContentThree: {
         type: String,
-        minLength: [250, "Subcontent Three must contain at least 250 characters"],
+        minLength: [250, "Subcontent Three must contain at least 250 characters"]
     },
     // Image for Subtitle Three
     subImageThree: {
@@ -83,8 +86,13 @@ const blogSchema = new mongoose.Schema({
     // Avatar of the author
     authorAvatar: {
         type: String,
-        required: true,
+        required: true
     },
+    published:{
+        type:Boolean,
+        default:false
+
+    }
 });
 
 // Define the blog model
