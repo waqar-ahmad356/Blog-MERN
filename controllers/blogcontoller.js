@@ -142,4 +142,63 @@ const getSingleBlog=async(req,res)=>{
     }
     
 }
-module.exports = { blogPost,deleteBlog,getAllBlogs ,getSingleBlog};
+
+//get myblog
+const getMyBlogs=async(req,res)=>{
+    try {
+        const blog_createdBy=req.user._id;
+        const myBlogs=await blogModel.find({blog_createdBy})
+        console.log(myBlogs)
+        return res.json({success:true,message:"Your Blogs","yours blogs": myBlogs})
+    } catch (error) {
+        console.log(error)
+        return res.json({success:false,message:"Error"})
+        
+        
+    }
+   
+}
+
+//update blog
+const updateBlog=async(req,res)=>{
+    try {
+        const {id}=req.params
+        const blog=await blogModel.findById(id)
+        if(!blog){
+            return res.json({success:false,message:"Blog not found"})
+        }
+        const newBlogData={
+            title:req.body.title,
+            intro:req.body.intro,
+            subTitleOne:req.body.subTitleOne,
+            subContentOne:req.body.subContentOne,
+            subTitleTwo:req.body.subTitleTwo,
+            subContentTwo:req.body.subContentTwo,
+            subTitleThree:req.body.subTitleThree,
+            subContentThree:req.body.subContentThree,
+            category:req.body.category,
+            published:req.body.published
+
+        }
+        if(req.files){
+            const {mainImage,subImageOne,subImageTwo,subImageThree}=req.files;
+            const allowedFormats=['image/png','image/jpg']
+            if(mainImage&& !allowedFormats.includes(mainImage.mimetype)||
+            subImageOne&& !allowedFormats.includes(subImageOne.mimetype)||
+            subImageTwo&& !allowedFormats.includes(subImageTwo.mimetype)||
+            subImageThree&& !allowedFormats.includes(subImageThree.mimetype)){
+                return res.json({success:false,message:"Invalid image format"})
+            }
+
+        
+        } 
+        if(req.files&&mainImage){
+            const blogmainImageId=req.body.
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({success:false,message:"Error"})
+        
+    }
+}
+module.exports = { blogPost,deleteBlog,getAllBlogs ,getSingleBlog,getMyBlogs};
