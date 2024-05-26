@@ -28,6 +28,13 @@ const app = express();
 connectDb();
 
 // Middleware setup
+//cors
+app.cors({
+    origin:[process.env.FRONTEND_URL],
+    methods:["GET","POST","PUT","DELETE"],
+    credentials:true,
+}
+)
 
 // Parse cookies
 app.use(cookieParser());

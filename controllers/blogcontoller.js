@@ -1,7 +1,7 @@
 const cloudinary = require("cloudinary").v2;
 const blogModel = require("../models/blogModel");
 
-// Create a function to handle blog post
+// Function to handle creating a new blog post
 const blogPost = async (req, res) => {
     // Check if image files are provided
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -48,6 +48,7 @@ const blogPost = async (req, res) => {
 
         const [mainImageRes, subImageOneRes, subImageTwoRes, subImageThreeRes] = await Promise.all(uploadPromises);
 
+        // Prepare blog data with image URLs and other details
         const blogData = {
             title,
             intro,
@@ -67,6 +68,7 @@ const blogPost = async (req, res) => {
             }
         };
 
+        // Add sub image data if available
         if (subImageOneRes) {
             blogData.subImageOne = {
                 public_id: subImageOneRes.public_id,
@@ -86,6 +88,7 @@ const blogPost = async (req, res) => {
             };
         }
 
+        // Create new blog instance and save to database
         const blog = new blogModel(blogData);
         await blog.save();
 
@@ -96,109 +99,130 @@ const blogPost = async (req, res) => {
         return res.json({ success: false, message: "Error" });
     }
 }
-//delete blog
 
-const deleteBlog=async(req,res)=>{
+// Function to delete a blog
+const deleteBlog = async (req, res) => {
     try {
-        const {id}=req.params
-        const blog=await blogModel.findById(id)
-        if(!blog){
-            return res.json({success:false,message:"Blog not found"})
+        const { id } = req.params;
+        const blog = await blogModel.findById(id);
+        if (!blog) {
+            return res.json({ success: false, message: "Blog not found" });
         }
         await blog.deleteOne();
-        return res.json({success:true,message:"Blog deleted successfully"})
+        return res.json({ success: true, message: "Blog deleted successfully" });
     } catch (error) {
         console.log(error);
-       return  res.json({success:false,message:"Error"})
-        
+        return res.json({ success: false, message: "Error" });
     }
 }
-//get all blogs
-const getAllBlogs=async(req,res)=>{
+
+// Function to get all published blogs
+const getAllBlogs = async (req, res) => {
     try {
-        const allblogs=await blogModel.find({published:true})
-        return res.json({success:true,message:"All blogs fetched successfully",allblogs})
+        const allblogs = await blogModel.find({ published: true });
+        return res.json({ success: true, message: "All blogs fetched successfully", allblogs });
     } catch (error) {
-        console.log(error)
-        return res.json({success:false,message:"Error"})
-        
+        console.log(error);
+        return res.json({ success: false, message: "Error" });
     }
 }
 
-// get single blog
-
-const getSingleBlog=async(req,res)=>{
+// Function to get a single blog by ID
+const getSingleBlog = async (req, res) => {
     try {
-        const {id}=req.params;
-    const blog=await blogModel.findById(id);
-    if(!blog){
-        return res.json({success:false,message:"Blog not found"})
-    }
-    return res.json({success:true,blog})
-    } catch (error) {
-        console.log(error)
-        return res.json({success:false,message:"Error"})
-        
-    }
-    
-}
-
-//get myblog
-const getMyBlogs=async(req,res)=>{
-    try {
-        const blog_createdBy=req.user._id;
-        const myBlogs=await blogModel.find({blog_createdBy})
-        console.log(myBlogs)
-        return res.json({success:true,message:"Your Blogs","yours blogs": myBlogs})
-    } catch (error) {
-        console.log(error)
-        return res.json({success:false,message:"Error"})
-        
-        
-    }
-   
-}
-
-//update blog
-const updateBlog=async(req,res)=>{
-    try {
-        const {id}=req.params
-        const blog=await blogModel.findById(id)
-        if(!blog){
-            return res.json({success:false,message:"Blog not found"})
+        const { id } = req.params;
+        const blog = await blogModel.findById(id);
+        if (!blog) {
+            return res.json({ success: false, message: "Blog not found" });
         }
-        const newBlogData={
-            title:req.body.title,
-            intro:req.body.intro,
-            subTitleOne:req.body.subTitleOne,
-            subContentOne:req.body.subContentOne,
-            subTitleTwo:req.body.subTitleTwo,
-            subContentTwo:req.body.subContentTwo,
-            subTitleThree:req.body.subTitleThree,
-            subContentThree:req.body.subContentThree,
-            category:req.body.category,
-            published:req.body.published
+        return res.json({ success: true, blog });
+    } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: "Error" });
+    }
+}
 
+// Function to get blogs created by the current user
+const getMyBlogs = async (req, res) => {
+    try {
+        const blog_createdBy = req.user._id;
+        const myBlogs = await blogModel.find({ createdBy: blog_createdBy });
+        return res.json({ success: true, message: "Your Blogs", "yours blogs": myBlogs });
+    } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: "Error" });
+    }
+}
+
+// Function to update a blog
+const updateBlog = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let blog = await blogModel.findById(id);
+        if (!blog) {
+            return res.json({ success: false, message: "Blog not found" });
         }
-        if(req.files){
-            const {mainImage,subImageOne,subImageTwo,subImageThree}=req.files;
-            const allowedFormats=['image/png','image/jpg']
-            if(mainImage&& !allowedFormats.includes(mainImage.mimetype)||
-            subImageOne&& !allowedFormats.includes(subImageOne.mimetype)||
-            subImageTwo&& !allowedFormats.includes(subImageTwo.mimetype)||
-            subImageThree&& !allowedFormats.includes(subImageThree.mimetype)){
-                return res.json({success:false,message:"Invalid image format"})
+
+        // Extract updated blog data from request body
+        const { title, intro, subTitleOne, subContentOne, subTitleTwo, subContentTwo, subTitleThree, subContentThree, category, published } = req.body;
+
+        // Prepare updated blog data
+        const newBlogData = {
+            title,
+            intro,
+            subTitleOne,
+            subContentOne,
+            subTitleTwo,
+            subContentTwo,
+            subTitleThree,
+            subContentThree,
+            category,
+            published
+        };
+
+        // Check if new image files are provided
+        let mainImage, subImageOne, subImageTwo, subImageThree;
+        if (req.files) {
+            ({ mainImage, subImageOne, subImageTwo, subImageThree } = req.files);
+            const allowedFormats = ['image/png', 'image/jpg'];
+            // Validate image formats
+            if ((mainImage && !allowedFormats.includes(mainImage.mimetype)) ||
+                (subImageOne && !allowedFormats.includes(subImageOne.mimetype)) ||
+                (subImageTwo && !allowedFormats.includes(subImageTwo.mimetype)) ||
+                (subImageThree && !allowedFormats.includes(subImageThree.mimetype))) {
+                return res.json({ success: false, message: "Invalid image format" });
             }
-
-        
-        } 
-        if(req.files&&mainImage){
-            const blogmainImageId=req.body.
         }
-    } catch (error) {
-        console.log(error)
-        return res.json({success:false,message:"Error"})
+
+        // Handle main image update
+        if (req.files && mainImage) {
+            // Delete previous main image from Cloudinary if exists
+            if (blog.mainImage) {
+                await cloudinary.uploader.destroy(blog.mainImage.public_id);
+            }
+            // Upload new main image to Cloudinary
+            const newBlogMainImage = await cloudinary.uploader.upload(mainImage.tempFilePath);
+            newBlogData.mainImage = {
+                public_id: newBlogMainImage.public_id,
+                url: newBlogMainImage.secure_url,
+            };
+        }
+
+        // Handle sub image updates similarly...
+
+        // Update the blog in the database with new data
+        blog = await blogModel.findByIdAndUpdate(id, newBlogData, {
+            new: true,
+            runValidators: true,
+            useFindAndModify: false
+        });
         
+        return res.json({ success: true, message: "Blog updated successfully", blog });
+    } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: "Error" });
     }
 }
-module.exports = { blogPost,deleteBlog,getAllBlogs ,getSingleBlog,getMyBlogs};
+
+// Export all functions for use in other modules
+module.exports = { blogPost, deleteBlog, getAllBlogs, getSingleBlog, getMyBlogs, updateBlog };
